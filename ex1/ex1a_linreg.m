@@ -43,9 +43,24 @@ theta = rand(n,1);
 % in linear_regression.m
 %
 tic;
-options = struct('MaxIter', 200);
+options = struct('MaxIter', 200, 'useMex',0);
 theta = minFunc(@linear_regression, theta, options, train.X, train.y);
 fprintf('Optimization took %f seconds.\n', toc);
+
+
+% Plot predicted prices and actual prices from training set.
+actual_prices = train.y;
+predicted_prices = theta'*train.X;
+
+% Print out root-mean-squared (RMS) training error.
+train_rms=sqrt(mean((predicted_prices - actual_prices).^2));
+fprintf('RMS training error: %f\n', train_rms);
+
+% Print out test RMS error
+actual_prices = test.y;
+predicted_prices = theta'*test.X;
+test_rms=sqrt(mean((predicted_prices - actual_prices).^2));
+fprintf('RMS testing error: %f\n', test_rms);
 
 % Run minFunc with linear_regression_vec.m as the objective.
 %
@@ -56,10 +71,10 @@ fprintf('Optimization took %f seconds.\n', toc);
 %
 % Uncomment the lines below to run your vectorized code.
 %Re-initialize parameters
-%theta = rand(n,1);
-%tic;
-%theta = minFunc(@linear_regression_vec, theta, options, train.X, train.y);
-%fprintf('Optimization took %f seconds.\n', toc);
+theta = rand(n,1);
+tic;
+theta = minFunc(@linear_regression_vec, theta, options, train.X, train.y);
+fprintf('Optimization took %f seconds.\n', toc);
 
 % Plot predicted prices and actual prices from training set.
 actual_prices = train.y;
