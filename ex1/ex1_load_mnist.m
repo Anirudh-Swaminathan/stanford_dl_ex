@@ -47,4 +47,3 @@ function [train, test] = ex1_load_mnist(binary_digits)
   % Place these in the testing set
   test.X=X;
   test.y=y;
-

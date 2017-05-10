@@ -37,6 +37,10 @@ n=size(train.X,1);
 % Initialize the coefficient vector theta to random values.
 theta = rand(n,1);
 
+% Check the average gadient error
+avg_err = grad_check(@linear_regression, theta, 100, train.X, train.y);
+fprintf('\nAverage errors for the gradient from gradient checking: %f\n', avg_err);
+
 % Run the minFunc optimizer with linear_regression.m as the objective.
 %
 % TODO:  Implement the linear regression objective and gradient computations
@@ -72,6 +76,11 @@ fprintf('RMS testing error: %f\n', test_rms);
 % Uncomment the lines below to run your vectorized code.
 %Re-initialize parameters
 theta = rand(n,1);
+
+% Check the average gadient error
+avg_err = grad_check(@linear_regression, theta, 100, train.X, train.y);
+fprintf('\nAverage errors for the gradient from gradient checking: %f\n', avg_err);
+
 tic;
 theta = minFunc(@linear_regression_vec, theta, options, train.X, train.y);
 fprintf('Optimization took %f seconds.\n', toc);
