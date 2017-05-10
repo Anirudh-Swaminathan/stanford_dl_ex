@@ -78,7 +78,7 @@ fprintf('RMS testing error: %f\n', test_rms);
 theta = rand(n,1);
 
 % Check the average gadient error
-avg_err = grad_check(@linear_regression, theta, 100, train.X, train.y);
+avg_err = grad_check(@linear_regression_vec, theta, 100, train.X, train.y);
 fprintf('\nAverage errors for the gradient from gradient checking: %f\n', avg_err);
 
 tic;
