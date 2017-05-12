@@ -1,4 +1,4 @@
-function [f,g] = softmax_regression(theta, X,y)
+function [f,g] = softmax_regression_vec(theta, X,y)
   %
   % Arguments:
   %   theta - A vector containing the parameter values to optimize.
@@ -28,18 +28,18 @@ function [f,g] = softmax_regression(theta, X,y)
   %
 %%% YOUR CODE HERE %%%
     % Perform 1 hot encoding initially
-    train_y = bsxfun(@eq, y(:), 1:max(y));
-    train_y = train_y';
+    ty = bsxfun(@eq, y(:), 1:max(y));
+    ty = ty';
 
     % Calculate the hypothesis
     epow = exp(theta' * X);
     epow = [epow; ones(1, m)];
     h_x = bsxfun(@rdivide, epow, sum(epow));
 
-    f = sum(sum(train_y .* log(h_x)));
+    f = sum(sum(ty .* log(h_x)));
     f = -1.0 * f;
 
-    g = -1.0 * X * (train_y - epow)';
+    g = -1.0 * X * (ty - epow)';
 
     % Since g is a nxk matrix, we needn't have a theta to represent the last class
     % Hence, we delete the last class g by removing the last column of g
