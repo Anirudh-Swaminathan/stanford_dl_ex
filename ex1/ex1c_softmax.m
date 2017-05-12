@@ -13,7 +13,7 @@ num_classes = 10;
 [train,test] = ex1_load_mnist(binary_digits);
 
 % Add row of 1s to the dataset to act as an intercept term.
-train.X = [ones(1,size(train.X,2)); train.X]; 
+train.X = [ones(1,size(train.X,2)); train.X];
 test.X = [ones(1,size(test.X,2)); test.X];
 train.y = train.y+1; % make labels 1-based.
 test.y = test.y+1; % make labels 1-based.
@@ -23,7 +23,7 @@ m=size(train.X,2);
 n=size(train.X,1);
 
 % Train softmax classifier using minFunc
-options = struct('MaxIter', 200);
+options = struct('MaxIter', 200, 'useMex', 0);
 
 % Initialize theta.  We use a matrix where each column corresponds to a class,
 % and each row is a classifier coefficient for that class.
@@ -36,6 +36,7 @@ theta = rand(n,num_classes-1)*0.001;
 % TODO:  Implement batch softmax regression in the softmax_regression_vec.m
 % file using a vectorized implementation.
 %
+% grad_check(@softmax_regression_vec, theta(:), 100, train.X, train.y)
 tic;
 theta(:)=minFunc(@softmax_regression_vec, theta(:), options, train.X, train.y);
 fprintf('Optimization took %f seconds.\n', toc);
