@@ -29,7 +29,7 @@ options = struct('MaxIter', 200, 'useMex', 0);
 % and each row is a classifier coefficient for that class.
 % Inside minFunc, theta will be stretched out into a long vector (theta(:)).
 % We only use num_classes-1 columns, since the last column is always assumed 0.
-theta = rand(n,num_classes-1)*0.001;
+theta = rand(n,num_classes)*0.001;
 
 % Call minFunc with the softmax_regression_vec.m file as objective.
 %
@@ -40,7 +40,7 @@ theta = rand(n,num_classes-1)*0.001;
 tic;
 theta(:)=minFunc(@softmax_regression_vec, theta(:), options, train.X, train.y);
 fprintf('Optimization took %f seconds.\n', toc);
-theta=[theta, zeros(n,1)]; % expand theta to include the last class.
+%theta=[theta, zeros(n,1)]; % expand theta to include the last class.
 
 % Print out training accuracy.
 tic;

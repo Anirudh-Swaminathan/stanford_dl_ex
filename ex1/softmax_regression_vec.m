@@ -15,7 +15,7 @@ function [f,g] = softmax_regression_vec(theta, X,y)
 
   % theta is a vector;  need to reshape to n x num_classes.
   theta=reshape(theta, n, []);
-  num_classes=size(theta,2)+1;
+  num_classes=size(theta,2);
 
   % initialize objective value and gradient.
   f = 0;
@@ -33,7 +33,7 @@ function [f,g] = softmax_regression_vec(theta, X,y)
 
     % Calculate the hypothesis
     epow = exp(theta' * X);
-    epow = [epow; ones(1, m)];
+    %epow = [epow; ones(1, m)];
     h_x = bsxfun(@rdivide, epow, sum(epow));
 
     f = sum(sum(ty .* log(h_x)));
@@ -44,6 +44,6 @@ function [f,g] = softmax_regression_vec(theta, X,y)
     % Since g is a nxk matrix, we needn't have a theta to represent the last class
     % Hence, we delete the last class g by removing the last column of g
     % to make it a nx(k-1) matrix
-    g(:, end) = [];
+    %g(:, end) = [];
 
   g=g(:); % make gradient a vector for minFunc
