@@ -63,3 +63,65 @@ fprintf('test accuracy: %f%%\n', 100.0*acc_test);
 [~,pred] = max(pred);
 acc_train = mean(pred'==labels_train);
 fprintf('train accuracy: %f%%\n', 100.0*acc_train);
+
+% Train with the tanh activation function for the same network
+fprintf('\n\nThe 3 layer network having 784-256-1 layer is using tanh units\n\n');
+ei.activation_fun = 'tanh';
+%% setup random initial weights
+stack = initialize_weights(ei);
+params = stack2params(stack);
+
+%% setup minfunc options
+options = [];
+options.display = 'iter';
+options.maxFunEvals = 1e6;
+options.Method = 'lbfgs';
+options.useMex = 0;
+
+%% run training
+tic;
+[opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
+    params,options,ei, data_train, labels_train);
+fprintf('Optimization took %f seconds.\n', toc);
+
+%% compute accuracy on the test and train set
+[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_test, [], true);
+[~,pred] = max(pred);
+acc_test = mean(pred'==labels_test);
+fprintf('test accuracy: %f%%\n', 100.0*acc_test);
+
+[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_train, [], true);
+[~,pred] = max(pred);
+acc_train = mean(pred'==labels_train);
+fprintf('train accuracy: %f%%\n', 100.0*acc_train);
+
+% Train with the tanh activation function for the same network
+fprintf('\n\nThe 3 layer network having 784-256-1 layer is using reLU\n\n');
+ei.activation_fun = 'reLU';
+%% setup random initial weights
+stack = initialize_weights(ei);
+params = stack2params(stack);
+
+%% setup minfunc options
+options = [];
+options.display = 'iter';
+options.maxFunEvals = 1e6;
+options.Method = 'lbfgs';
+options.useMex = 0;
+
+%% run training
+tic;
+[opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
+    params,options,ei, data_train, labels_train);
+fprintf('Optimization took %f seconds.\n', toc);
+
+%% compute accuracy on the test and train set
+[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_test, [], true);
+[~,pred] = max(pred);
+acc_test = mean(pred'==labels_test);
+fprintf('test accuracy: %f%%\n', 100.0*acc_test);
+
+[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_train, [], true);
+[~,pred] = max(pred);
+acc_train = mean(pred'==labels_train);
+fprintf('train accuracy: %f%%\n', 100.0*acc_train);

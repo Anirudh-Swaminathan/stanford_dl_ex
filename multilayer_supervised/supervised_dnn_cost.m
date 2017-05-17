@@ -21,13 +21,29 @@ gradStack = cell(numHidden+1, 1);
 
 for l=1:length(hAct)
     if l==1
-        hAct{l} = sigmoid(bsxfun(@plus, stack{l}.W*data, stack{l}.b));
+        xh = bsxfun(@plus, stack{l}.W*data, stack{l}.b);
+        switch ei.activation_fun
+        case 'logistic'
+            hAct{l} = sigmoid(xh);
+        case 'tanh'
+            hAct{l} = tanh(xh);
+        case 'reLU'
+            hAct{l} = bsxfun(@max, zeros(size(xh)), xh);
+        end
     elseif l==length(hAct)
         Hwb = exp(bsxfun(@plus, stack{l}.W*hAct{l-1}, stack{l}.b));
         hAct{end} = bsxfun(@rdivide, Hwb, sum(Hwb));
         clear Hwb;
     else
-        hAct{l} = sigmoid(bsxfun(@plus, stack{l}.W*hAct{l-1}, stack{l}.b))
+        xh = bsxfun(@plus, stack{l}.W*hAct{l-1}, stack{l}.b);
+        switch ei.activation_fun
+        case 'logistic'
+            hAct{l} = sigmoid(xh);
+        case 'tanh'
+            hAct{l} = tanh(xh);
+        case 'reLU'
+            hAct{l} = bsxfun(@max, zeros(size(xh)), xh);
+        end
     end
 end
 pred_prob = hAct{end};
@@ -56,11 +72,25 @@ for i=length(sDel):-1:1
         sDel{i} = -(ty - hAct{i});
     elseif i==1
         znl = bsxfun(@plus, stack{i}.W*data, stack{i}.b);
-        der = bsxfun(@times, sigmoid(znl), (1-sigmoid(znl)));
+        switch ei.activation_fun
+        case 'logistic'
+            der = bsxfun(@times, sigmoid(znl), (1-sigmoid(znl)));
+        case 'tanh'
+            der = bsxfun(@power, sech(znl), 2);
+        case 'reLU'
+            der = bsxfun(@max, zeros(size(znl)), znl>0);
+        end
         sDel{i} = (stack{i+1}.W' * sDel{i+1}) .* der;
     else
         znl = bsxfun(@plus, stack{i}.W*hAct{i-1}, stack{i}.b);
-        der = bsxfun(@times, sigmoid(znl), (1-sigmoid(znl)));
+        switch ei.activation_fun
+        case 'logistic'
+            der = bsxfun(@times, sigmoid(znl), (1-sigmoid(znl)));
+        case 'tanh'
+            der = bsxfun(@power, sech(znl), 2);
+        case 'reLU'
+            der = bsxfun(@max, zeros(size(znl)), znl>0);
+        end
         sDel{i} = (stack{i+1}.W' * sDel{i+1}) .* der;
     end
 end
