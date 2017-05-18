@@ -12,7 +12,6 @@ end;
 
 %% reshape into network
 stack = params2stack(theta, ei);
-size(stack{1}.W);
 numHidden = numel(ei.layer_sizes) - 1;
 hAct = cell(numHidden+1, 1);
 gradStack = cell(numHidden+1, 1);
@@ -99,7 +98,7 @@ end
 %%% YOUR CODE HERE %%%
 
 regCost = 0;
-for i=1:numel(stack)
+for i=1:length(ei.layer_sizes)
     regCost = regCost + (ei.lambda / 2) * norm(stack{i}.W, 'fro')^2;
 end
 cost = crossEntropyCost + regCost;
