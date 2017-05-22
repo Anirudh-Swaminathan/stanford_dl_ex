@@ -22,15 +22,15 @@ convDim = imageDim - filterDim + 1;
 convolvedFeatures = zeros(convDim, convDim, numFilters, numImages);
 
 % Instructions:
-%   Convolve every filter with every image here to produce the 
+%   Convolve every filter with every image here to produce the
 %   (imageDim - filterDim + 1) x (imageDim - filterDim + 1) x numFeatures x numImages
-%   matrix convolvedFeatures, such that 
+%   matrix convolvedFeatures, such that
 %   convolvedFeatures(imageRow, imageCol, featureNum, imageNum) is the
 %   value of the convolved featureNum feature for the imageNum image over
 %   the region (imageRow, imageCol) to (imageRow + filterDim - 1, imageCol + filterDim - 1)
 %
-% Expected running times: 
-%   Convolving with 100 images should take less than 30 seconds 
+% Expected running times:
+%   Convolving with 100 images should take less than 30 seconds
 %   Convolving with 5000 images should take around 2 minutes
 %   (So to save time when testing, you should convolve with less images, as
 %   described earlier)
@@ -45,10 +45,11 @@ for imageNum = 1:numImages
     % Obtain the feature (filterDim x filterDim) needed during the convolution
 
     %%% YOUR CODE HERE %%%
+    filter = squeeze(W(:, :, filterNum));
 
     % Flip the feature matrix because of the definition of convolution, as explained later
     filter = rot90(squeeze(filter),2);
-      
+
     % Obtain the image
     im = squeeze(images(:, :, imageNum));
 
@@ -56,17 +57,17 @@ for imageNum = 1:numImages
     % be sure to do a 'valid' convolution
 
     %%% YOUR CODE HERE %%%
-    
+    conI = conv2(im, filter, shape='valid');
     % Add the bias unit
+    conI = bsxfun(@plus, conI, b(filterNum));
     % Then, apply the sigmoid function to get the hidden activation
-
+    convolvedImage = sigmoid(conI);
     %%% YOUR CODE HERE %%%
 
-    
+
     convolvedFeatures(:, :, filterNum, imageNum) = convolvedImage;
   end
 end
 
 
 end
-
