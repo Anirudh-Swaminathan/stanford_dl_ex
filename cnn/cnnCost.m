@@ -3,13 +3,13 @@ function [cost, grad, preds] = cnnCost(theta,images,labels,numClasses,...
 % Calcualte cost and gradient for a single layer convolutional
 % neural network followed by a softmax layer with cross entropy
 % objective.
-%                            
+%
 % Parameters:
 %  theta      -  unrolled parameter vector
 %  images     -  stores images in imageDim x imageDim x numImges
 %                array
 %  numClasses -  number of classes to predict
-%  filterDim  -  dimension of convolutional filter                            
+%  filterDim  -  dimension of convolutional filter
 %  numFilters -  number of convolutional filters
 %  poolDim    -  dimension of pooling area
 %  pred       -  boolean only forward propagate and return
@@ -56,7 +56,7 @@ bd_grad = zeros(size(bd));
 
 %% Convolutional Layer
 %  For each image and each filter, convolve the image with the filter, add
-%  the bias and apply the sigmoid nonlinearity.  Then subsample the 
+%  the bias and apply the sigmoid nonlinearity.  Then subsample the
 %  convolved activations with mean pooling.  Store the results of the
 %  convolution in activations and the results of the pooling in
 %  activationsPooled.  You will need to save the convolved activations for
@@ -72,6 +72,27 @@ activations = zeros(convDim,convDim,numFilters,numImages);
 activationsPooled = zeros(outputDim,outputDim,numFilters,numImages);
 
 %%% YOUR CODE HERE %%%
+for imageNum=1:numImages
+    for filterNum=1:numFilters
+        % Convolving images with the filters
+        convolvedImage = zeros(convDim, convDim);
+        filter = squeeze(Wc(:, :, filterNum));
+        filter = rot90(squeeze(filter), 2);
+        im = squeeze(images(:, :, imageNum));
+        conI = conv2(im, filter, shape='valid');
+        conI = bsxfun(@plus, conI, bc(filterNum));
+        convolvedImage = sigmoid(conI);
+        activations(:, :, filterNum, imageNum) = convolvedImage;
+
+        % Pooling of the convolved images
+        pooledImage = zeros(outputDim, outputDim);
+        im = squeeze(activations(:, :, filterNum, imageNum));
+        polI = conv2(im, ones(poolDim), shape='valid');
+        polI = polI(1:poolDim:end, 1:poolDim:end);
+        polI = bsxfun(@rdivide, polI, poolDim^2);
+        activationsPooled(:, :, filterNum, imageNum) = polI;
+    end
+end
 
 % Reshape activations into 2-d matrix, hiddenSize x numImages,
 % for Softmax layer
@@ -88,7 +109,8 @@ activationsPooled = reshape(activationsPooled,[],numImages);
 probs = zeros(numClasses,numImages);
 
 %%% YOUR CODE HERE %%%
-
+hwb = exp(bsxfun(@plus, Wd*activationPooled, bd));
+probs = bsxfun(@rdivide, hwb, sum(hwb));
 %%======================================================================
 %% STEP 1b: Calculate Cost
 %  In this step you will use the labels given as input and the probs
@@ -113,8 +135,8 @@ end;
 %  layers.  Store the errors for the next step to calculate the gradient.
 %  Backpropagating the error w.r.t the softmax layer is as usual.  To
 %  backpropagate through the pooling layer, you will need to upsample the
-%  error with respect to the pooling layer for each filter and each image.  
-%  Use the kron function and a matrix of ones to do this upsampling 
+%  error with respect to the pooling layer for each filter and each image.
+%  Use the kron function and a matrix of ones to do this upsampling
 %  quickly.
 
 %%% YOUR CODE HERE %%%
