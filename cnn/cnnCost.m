@@ -121,6 +121,10 @@ cost = 0; % save objective into cost
 
 %%% YOUR CODE HERE %%%
 
+ty = bsxfun(@eq, labels(:), 1:max(labels));
+ty = ty';
+cost = -1.0 * sum(sum(ty .* log(probs))) / numImages;
+
 % Makes predictions given probs and returns without backproagating errors.
 if pred
     [~,preds] = max(probs,[],1);
