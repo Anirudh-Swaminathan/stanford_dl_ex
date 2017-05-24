@@ -109,7 +109,7 @@ activationsPooled = reshape(activationsPooled,[],numImages);
 probs = zeros(numClasses,numImages);
 
 %%% YOUR CODE HERE %%%
-hwb = exp(bsxfun(@plus, Wd*activationPooled, bd));
+hwb = exp(bsxfun(@plus, Wd*activationsPooled, bd));
 probs = bsxfun(@rdivide, hwb, sum(hwb));
 %%======================================================================
 %% STEP 1b: Calculate Cost
@@ -124,6 +124,7 @@ cost = 0; % save objective into cost
 ty = bsxfun(@eq, labels(:), 1:max(labels));
 ty = ty';
 cost = -1.0 * sum(sum(ty .* log(probs))) / numImages;
+%fprintf('Initial Cost is %f\n', cost);
 
 % Makes predictions given probs and returns without backproagating errors.
 if pred
@@ -144,7 +145,37 @@ end;
 %  quickly.
 
 %%% YOUR CODE HERE %%%
+% Softmax layer
+ed = -1.0*(ty - probs);
+%ed = ed / numImages;
 
+% Mean pooling layer
+ep = Wd' * ed;
+% Reshape the hiddenSize*numImages matrix into a 4D tensor with dimensions
+% as outputDim*outputDim*numFilters*numImages
+ep = reshape(ep, [], outputDim, numFilters, numImages);
+
+% The 'input' errors to the convolution layer must be of the dimensions of the
+% original convoluted layer before pooling, i.e., must be
+% convDim*convDim*numFilters*numImages
+% Since pooling is NOT a weighted operation, we first unpool and then de-activate.
+% Hence, we first upsample, and then multipy with the derivative of the activation function
+ecin = zeros(convDim, convDim, numFilters, numImages);
+for imageNum=1:numImages
+    for filterNum=1:numFilters
+        ecin(:, :, filterNum, imageNum) = (1/poolDim^2) * kron(ep(:, :, filterNum, imageNum), ones(poolDim));
+    end
+end
+
+% Calculate the error before the convolution operation
+ec = ecin .* activations .* (1 - activations);
+%{
+fprintf('\nPrinting sizes of ed, ep, ecin and ec in order\n');
+size(ed)
+size(ep)
+size(ecin)
+size(ec)
+%}
 %%======================================================================
 %% STEP 1d: Gradient Calculation
 %  After backpropagating the errors above, we can use them to calculate the
@@ -154,7 +185,30 @@ end;
 %  for that filter with each image and aggregate over images.
 
 %%% YOUR CODE HERE %%%
+% Softmax gradient
+Wd_grad = 1.0 / numImages * (ed * activationsPooled');
+bd_grad = 1.0 / numImages * sum(ed, 2);
 
+% The convolutional gradient
+for filterNum=1:numFilters
+    Wcfil = zeros(size(Wc_grad, 1), size(Wc_grad, 2));
+    for imageNum=1:numImages
+        Wcfil = Wcfil + conv2(images(:, :, imageNum), rot90(ec(:, :, filterNum, imageNum), 2), shape='valid');
+    end
+    Wc_grad(:, :, filterNum) = Wcfil / numImages;
+end
+
+for filterNum=1:numFilters
+    e = ec(:, :, filterNum, :);
+    bc_grad(filterNum) = sum(e(:)) / numImages;
+end
+%{
+fprintf('\nPrinting sizes of Wc_grad, bc_grad, Wd_grad and bd_grad in order\n');
+size(Wc_grad)
+size(bc_grad)
+size(Wd_grad)
+size(bd_grad)
+%}
 %% Unroll gradient into grad vector for minFunc
 grad = [Wc_grad(:) ; Wd_grad(:) ; bc_grad(:) ; bd_grad(:)];
 
