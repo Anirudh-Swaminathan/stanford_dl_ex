@@ -39,7 +39,7 @@ theta = cnnInitParams(imageDim,filterDim,numFilters,poolDim,numClasses);
 %  calculation for your cnnCost.m function.  You may need to add the
 %  appropriate path or copy the file to this directory.
 
-DEBUG=true;  % set this to true to check gradient
+DEBUG=false;  % set this to true to check gradient
 if DEBUG
     % To speed up gradient checking, we will use a reduced network and
     % a debugging data set
@@ -82,13 +82,20 @@ options.minibatch = 256;
 options.alpha = 1e-1;
 options.momentum = .95;
 
+tic;
 opttheta = minFuncSGD(@(x,y,z) cnnCost(x,y,z,numClasses,filterDim,...
                       numFilters,poolDim),theta,images,labels,options);
+fprintf('Optimization took %f seconds.\n', toc);
 
 %%======================================================================
 %% STEP 4: Test
 %  Test the performance of the trained model using the MNIST test set. Your
 %  accuracy should be above 97% after 3 epochs of training
+
+[~,cost,preds]=cnnCost(opttheta,images,labels,numClasses,...
+                filterDim,numFilters,poolDim,true);
+acc = sum(preds==labels)/length(preds);
+fprintf('Training accuracy is %f%%\n',100.0*acc);
 
 testImages = loadMNISTImages('../common/t10k-images-idx3-ubyte');
 testImages = reshape(testImages,imageDim,imageDim,[]);
@@ -101,4 +108,4 @@ testLabels(testLabels==0) = 10; % Remap 0 to 10
 acc = sum(preds==testLabels)/length(preds);
 
 % Accuracy should be around 97.4% after 3 epochs
-fprintf('Accuracy is %f%%\n',100.0*acc);
+fprintf('Testing accuracy is %f%%\n',100.0*acc);
